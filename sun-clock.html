@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="suncalc.js"></script>
+    <!-- // <script src="moment.js"></script> -->
+    <title>SunCalc Testing</title>
+
+  </head>
+
+  <body>
+
+    <script type="text/javascript">
+
+      var sunrise, sunset;
+      // var risestring;
+      var totalseconds;
+
+      // get location from the browser
+      navigator.geolocation.getCurrentPosition(function(position) {
+          getLocation(position)
+      }, function(positionError) {
+          console.error(positionError);
+      });
+
+      function getLocation(data) {
+        var lat = data.coords.latitude;
+        var lon = data.coords.longitude;
+        console.log("lat = " + lat + ", lon = " + lon);
+
+        getTodayData(lat, lon);
+      }
+
+      function parseTimes(json) {
+        //this returns the sunrise and sunset as objects
+        sunrise = json.sunrise; 
+        sunset = json.sunset;
+
+        //converts to a string
+        // sunrise = JSON.stringify(json.sunrise); //returns the date as a string
+        // sunset = JSON.stringify(json.sunset); //returns the date as a string
+
+        //use sunset.getTime(); - to convert to tuc 
+        //UTC is 5 hours ahead of EST
+        var utcsunrise = sunrise.getTime()/1000;
+        var utcsunset = sunset.getTime()/1000;
+
+
+        
+        console.log("sunrise = " + sunrise + ", sunset = " + sunset);
+        console.log("utc sunrise = " + utcsunrise + ", utc sunset = " + utcsunset);
+
+                totalseconds = utcsunset - utcsunrise;
+        console.log(totalseconds);
+
+      }
+
+      function getTodayData(_lat, _lon){
+        var times = SunCalc.getTimes(new Date(), _lat, _lon);
+        // console.log(times);
+
+        parseTimes(times);
+
+      }
+
+      function getFullYearData() {
+        // get sunrise and sunset times for a full year
+        // loop through this function 365 times --> var times = SunCalc.getTimes(new Date(), _lat, _lon);
+        // add each day to an object that will be exported by the export csv function
+      }
+
+      function exportMyCSV() {
+
+      }
+
+
+    </script>
+  
+  </body>
+
+</html>
