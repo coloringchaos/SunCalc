@@ -1,82 +1,141 @@
 <!DOCTYPE html>
 <html>
 
-  <head>
-    <meta charset="UTF-8">
-    <script type="text/javascript" src="suncalc.js"></script>
-    <!-- // <script src="moment.js"></script> -->
-    <title>SunCalc Testing</title>
+<head>
+	<meta charset="UTF-8">
 
-  </head>
+	<!-- // <script type="text/javascript" src="jquery-1.11.3.min.js"></script> -->
+	<script type="text/javascript" src="suncalc.js"></script>
 
-  <body>
+	<link href="style.css" rel="stylesheet">
+	<link href='http://fonts.googleapis.com/css?family=Yantramanav:100' rel='stylesheet' type='text/css'>
+
+	<title>SunClock 2.0</title>
+
+</head>
+
+<body>
+
+<!-- 	<div id="container">
+        <form>
+        	<input type="text" id="degree" name="degree">
+            <input type="button" value="submit" submit="changeDegree(document.getElementById('degree').value);">
+        </form>
+
+        <a id="button" href="#">Show Details</a>
+        <div id="item">
+        	<br>
+        	This is a daylight clock.
+        	<br>
+        	It rotates 360 degrees over the course of daylight hours.
+        	<br>
+        	<br>
+
+        	<div id="time"></div>
+        	<br>
+        	<div id="daylength"></div>
+        	<br>
+        	<div id="degree"></div>
+        </div>
+    </div> 
+
+    <br>
+    <br> -->
+
+    <div id="clock-div">
+
+    	<svg id="clock" viewBox="0 0 100 100">
+    		<circle id="face" cx="50" cy="50" r="46"/>
+    		<g id="hands">
+    			<line id="hand" x1="50" y1="50" x2="50" y2="4"/>
+    		</g>
+    	</svg>
+
+    </div>
+
+    <div id="info">
+    </div>
+
 
     <script type="text/javascript">
 
-      var sunrise, sunset;
-      // var risestring;
-      var totalseconds;
+    var sunrise, sunset;
+    var totalseconds;
 
-      // get location from the browser
-      navigator.geolocation.getCurrentPosition(function(position) {
-          getLocation(position)
-      }, function(positionError) {
-          console.error(positionError);
-      });
+    var myArray = [];
 
-      function getLocation(data) {
-        var lat = data.coords.latitude;
-        var lon = data.coords.longitude;
-        console.log("lat = " + lat + ", lon = " + lon);
+	  // get user location from the browser
+	  navigator.geolocation.getCurrentPosition(function(position) {
+	  	getLocation(position)
+	  }, function(positionError) {
+	  	console.error(positionError);
+	  });
 
-        getTodayData(lat, lon);
-      }
+	  function getLocation(data) {
+	  	var lat = data.coords.latitude;
+	  	var lon = data.coords.longitude;
+	  	console.log("lat = " + lat + ", lon = " + lon);
 
-      function parseTimes(json) {
-        //this returns the sunrise and sunset as objects
-        sunrise = json.sunrise; 
-        sunset = json.sunset;
+	  	getData(lat, lon);
+	  }
 
-        //converts to a string
-        // sunrise = JSON.stringify(json.sunrise); //returns the date as a string
-        // sunset = JSON.stringify(json.sunset); //returns the date as a string
+	  function parseTimes(json) {
+		//this returns the sunrise and sunset as objects
+		sunrise = json.sunrise; 
+		sunset = json.sunset;
 
-        //use sunset.getTime(); - to convert to tuc 
-        //UTC is 5 hours ahead of EST
-        var utcsunrise = sunrise.getTime()/1000;
-        var utcsunset = sunset.getTime()/1000;
+		//converts to a string
+		// sunrise = JSON.stringify(json.sunrise); //returns the date as a string
+		// sunset = JSON.stringify(json.sunset); //returns the date as a string
 
+		//use sunset.getTime(); - to convert to tuc 
+		//UTC is 5 hours ahead of EST
+		var utcsunrise = sunrise.getTime()/1000;
+		var utcsunset = sunset.getTime()/1000;
+		
+		console.log("sunrise = " + sunrise + ", sunset = " + sunset);
+		console.log("utc sunrise = " + utcsunrise + ", utc sunset = " + utcsunset);
 
-        
-        console.log("sunrise = " + sunrise + ", sunset = " + sunset);
-        console.log("utc sunrise = " + utcsunrise + ", utc sunset = " + utcsunset);
+		totalseconds = utcsunset - utcsunrise;
+		console.log(totalseconds);
 
-                totalseconds = utcsunset - utcsunrise;
-        console.log(totalseconds);
+	}
 
-      }
+	function getData(_lat, _lon){
+		var times = SunCalc.getTimes(new Date(), _lat, _lon);
 
-      function getTodayData(_lat, _lon){
-        var times = SunCalc.getTimes(new Date(), _lat, _lon);
-        // console.log(times);
-
-        parseTimes(times);
-
-      }
-
-      function getFullYearData() {
-        // get sunrise and sunset times for a full year
-        // loop through this function 365 times --> var times = SunCalc.getTimes(new Date(), _lat, _lon);
-        // add each day to an object that will be exported by the export csv function
-      }
-
-      function exportMyCSV() {
-
-      }
+		parseTimes(times);
 
 
-    </script>
-  
-  </body>
+	}
+
+	function getData(_day, _lat, _lon){
+		//get date - not today, just one i want
+		//then do SunCalc.getTimes
+		//push to array
+	}
+
+
+	function getFullYearData() {
+		// get sunrise and sunset times for a full year
+		// loop through this function 365 times -->  getData(_day, _lat, _lon);
+
+		// add each day to an object that will be exported by the export csv function
+	}
+
+	function exportMyCSV() {
+
+	}
+
+	// toggle information
+	// $( "#item" ).hide();
+	// $( "#button" ).click(function() {
+	// 	$( "#item" ).toggle();
+	// });
+
+
+	</script>
+
+</body>
 
 </html>
