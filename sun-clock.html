@@ -8,7 +8,7 @@
 	<script type="text/javascript" src="suncalc.js"></script>
 
 	<link href="style.css" rel="stylesheet">
-	<link href='http://fonts.googleapis.com/css?family=Yantramanav:100' rel='stylesheet' type='text/css'>
+	<!-- <link href='http://fonts.googleapis.com/css?family=Yantramanav:100' rel='stylesheet' type='text/css'> -->
 
 	<title>SunClock 2.0</title>
 
@@ -16,126 +16,181 @@
 
 <body>
 
-<!-- 	<div id="container">
-        <form>
-        	<input type="text" id="degree" name="degree">
-            <input type="button" value="submit" submit="changeDegree(document.getElementById('degree').value);">
-        </form>
+<!-- 		<div id="container">
+	        <form>
+	        	<input type="text" id="degree" name="degree">
+	            <input type="button" value="submit" submit="changeDegree(document.getElementById('degree').value);">
+	        </form>
 
-        <a id="button" href="#">Show Details</a>
-        <div id="item">
-        	<br>
-        	This is a daylight clock.
-        	<br>
-        	It rotates 360 degrees over the course of daylight hours.
-        	<br>
-        	<br>
+	        <a id="button" href="#">Show Details</a>
+	        <div id="item">
+	        	<br>
+	        	This is a daylight clock.
+	        	<br>
+	        	It rotates 360 degrees over the course of daylight hours.
+	        	<br>
+	        	<br>
 
-        	<div id="time"></div>
-        	<br>
-        	<div id="daylength"></div>
-        	<br>
-        	<div id="degree"></div>
-        </div>
-    </div> 
+	        	<div id="time"></div>
+	        	<br>
+	        	<div id="daylength"></div>
+	        	<br>
+	        	<div id="degree"></div>
+	        </div>
+	    </div> 
 
-    <br>
-    <br> -->
+	    <br>
+	    <br> -->
 
-    <div id="clock-div">
+	    <div id="clock-div">
 
-    	<svg id="clock" viewBox="0 0 100 100">
-    		<circle id="face" cx="50" cy="50" r="46"/>
-    		<g id="hands">
-    			<line id="hand" x1="50" y1="50" x2="50" y2="4"/>
-    		</g>
-    	</svg>
+	    	<svg id="clock" viewBox="0 0 100 100">
+	    		<circle id="face" cx="50" cy="50" r="46"/>
+	    		<g id="hands">
+	    			<line id="hand" x1="50" y1="50" x2="50" y2="4"/>
+	    		</g>
+	    	</svg>
 
-    </div>
+	    </div>
 
-    <div id="info">
-    </div>
+	    <div id="info">
+	    </div>
 
 
-    <script type="text/javascript">
+	    <script type="text/javascript">
 
-    var sunrise, sunset;
-    var totalseconds;
+	    var sunrise, sunset;
+	    var totalDaylightSec;
 
-    var myArray = [];
+	    var utcsunrise, utcsunset;
+	    var utcCurrentTime;
 
-	  // get user location from the browser
-	  navigator.geolocation.getCurrentPosition(function(position) {
-	  	getLocation(position)
-	  }, function(positionError) {
-	  	console.error(positionError);
-	  });
+	    var currentTime, now;
+	    var currentdegree;
+	    var daylength;
 
-	  function getLocation(data) {
-	  	var lat = data.coords.latitude;
-	  	var lon = data.coords.longitude;
-	  	console.log("lat = " + lat + ", lon = " + lon);
+	    // var currentTime;
 
-	  	getData(lat, lon);
-	  }
+	    var myArray = [];
+	    // get user location from the browser
+	    navigator.geolocation.getCurrentPosition(function(position) {
+	    	getLocation(position)
+	    }, function(positionError) {
+	    	console.error(positionError);
+	    });
 
-	  function parseTimes(json) {
-		//this returns the sunrise and sunset as objects
-		sunrise = json.sunrise; 
-		sunset = json.sunset;
+	    function getLocation(data) {
+	    	var lat = data.coords.latitude;
+	    	var lon = data.coords.longitude;
+	    	console.log("lat = " + lat + ", lon = " + lon);
 
-		//converts to a string
-		// sunrise = JSON.stringify(json.sunrise); //returns the date as a string
-		// sunset = JSON.stringify(json.sunset); //returns the date as a string
+	    	getTodayData(lat, lon);
+	    }
 
-		//use sunset.getTime(); - to convert to tuc 
-		//UTC is 5 hours ahead of EST
-		var utcsunrise = sunrise.getTime()/1000;
-		var utcsunset = sunset.getTime()/1000;
+	    function parseTimes(json) {
+	    	utcsunrise = json.sunrise.getTime()/1000;
+	    	utcsunset = json.sunset.getTime()/1000;
+	    	console.log("utc sunrise = " + utcsunrise + ", utc sunset = " + utcsunset);
+
+	    	sunrise = convertUNIX(utcsunrise);
+	    	sunset = convertUNIX(utcsunset);
+	    	console.log("sunrise in seconds for today = " + sunrise + ", sunset in seconds for today = " + sunset);
+	    }
+
+	    function getTodayData(_lat, _lon){
+	    	var times = SunCalc.getTimes(new Date(), _lat, _lon);
+
+	    	parseTimes(times);
+	    }
+
+
+		/*
+		the function convertUNIX takes a UTC timestamp and finds the seconds in THAT particular day
+		there are 86400 seconds in a day - so the sunrise should be sometime around 2000-3000 seconds, and sunset should be 5000++
+		*/
+		var convertUNIX = function(UTC) {
+			var date = new Date(UTC*1000);         
+			var hours = date.getHours() * 60; 
+			var minutes = "0" + date.getMinutes();
+			var totalMinutes = parseInt(hours) + parseInt(minutes);
+			var totalSeconds = parseInt(totalMinutes) * 60;
+
+			return totalSeconds;
+		}
 		
-		console.log("sunrise = " + sunrise + ", sunset = " + sunset);
-		console.log("utc sunrise = " + utcsunrise + ", utc sunset = " + utcsunset);
 
-		totalseconds = utcsunset - utcsunrise;
-		console.log(totalseconds);
+		function getCurrentTime() {
+			//this is getting the number of seconds that have elapsed since the beginning of TODAY - it resets to zero at midnight
+			date = new Date();
+			hours = date.getHours() * 60; 
+			minutes = "0" + date.getMinutes();
+			seconds = date.getSeconds();
+			totalMinutes = parseInt(hours) + parseInt(minutes);
 
-	}
+			var totalSeconds = (parseInt(totalMinutes) * 60) + parseInt(seconds);
+			return totalSeconds;
+		}
 
-	function getData(_lat, _lon){
-		var times = SunCalc.getTimes(new Date(), _lat, _lon);
+		//for debugging
+		function checkDaylight() {
+			if (utcCurrentTime > utcsunrise && utcCurrentTime < utcsunset){
+				console.log("it is currently light out");
+			} else {
+				console.log("it is currently dark out");
+			}
+		}
 
-		parseTimes(times);
+		setInterval(function() {
+			currentTime = getCurrentTime();
+			daylength = Math.floor(utcsunset - utcsunrise); //retuns the daylength in seconds 
+
+			//now is a TERRIBLE name for this variable = figure out something better
+			var elapsed = parseInt(currentTime) - parseInt(sunrise);
+			// console.log(now);
+
+			currentdegree = (360*elapsed)/daylength; //in minutes, 1440 minutes in 24 hours
+
+			if (currentdegree > 360 || currentdegree < 0) {
+				currentdegree = 0;
+			}	
+
+			// console.log(currentdegree);
+			function rotate(el, degree) {
+				el.setAttribute('transform', 'rotate('+ degree +' 50 50)')
+			}
+
+			rotate(hand, currentdegree);
+
+			console.log('current degree: ' + currentdegree);
+
+		}, 1000);
 
 
-	}
 
-	function getData(_day, _lat, _lon){
-		//get date - not today, just one i want
-		//then do SunCalc.getTimes
-		//push to array
-	}
+		/*
+		////////////// OUTLINE FOR GETTING YEAR OF DATA /////////////////
+		function getData(_day, _lat, _lon){
+			//get date - not today, just one i want
+			//then do SunCalc.getTimes
+			//push to array
+		}
 
+		function getFullYearData() {
+			// get sunrise and sunset times for a full year
+			// loop through this function 365 times -->  getData(_day, _lat, _lon);
 
-	function getFullYearData() {
-		// get sunrise and sunset times for a full year
-		// loop through this function 365 times -->  getData(_day, _lat, _lon);
+			// add each day to an object that will be exported by the export csv function
+		}
 
-		// add each day to an object that will be exported by the export csv function
-	}
+		function exportMyCSV() {
 
-	function exportMyCSV() {
-
-	}
-
-	// toggle information
-	// $( "#item" ).hide();
-	// $( "#button" ).click(function() {
-	// 	$( "#item" ).toggle();
-	// });
+		}
+		/////////////////////////////////////////////////////////////////
+		*/
 
 
-	</script>
+		</script>
 
-</body>
+	</body>
 
-</html>
+	</html>
