@@ -59,17 +59,8 @@
 
 	    <script type="text/javascript">
 
-	    var sunrise, sunset;
-	    var totalDaylightSec;
-
-	    var utcsunrise, utcsunset;
-	    var utcCurrentTime;
-
-	    var currentTime, now;
-	    var currentdegree;
-	    var daylength;
-
-	    // var currentTime;
+	    var sunrise, sunset, utcsunrise, utcsunset;
+	    var currentTime, currentdegree, daylength;
 
 	    var myArray = [];
 	    // get user location from the browser
@@ -90,11 +81,11 @@
 	    function parseTimes(json) {
 	    	utcsunrise = json.sunrise.getTime()/1000;
 	    	utcsunset = json.sunset.getTime()/1000;
-	    	console.log("utc sunrise = " + utcsunrise + ", utc sunset = " + utcsunset);
+	    	console.log("utc sunrise " + utcsunrise + ", utc sunset " + utcsunset);
 
 	    	sunrise = convertUNIX(utcsunrise);
 	    	sunset = convertUNIX(utcsunset);
-	    	console.log("sunrise in seconds for today = " + sunrise + ", sunset in seconds for today = " + sunset);
+	    	console.log("sunrise is at " + sunrise + " seconds, sunset is at " + sunset + " seconds");
 	    }
 
 	    function getTodayData(_lat, _lon){
@@ -102,7 +93,6 @@
 
 	    	parseTimes(times);
 	    }
-
 
 		/*
 		the function convertUNIX takes a UTC timestamp and finds the seconds in THAT particular day
@@ -117,7 +107,6 @@
 
 			return totalSeconds;
 		}
-		
 
 		function getCurrentTime() {
 			//this is getting the number of seconds that have elapsed since the beginning of TODAY - it resets to zero at midnight
@@ -142,14 +131,12 @@
 
 		setInterval(function() {
 			currentTime = getCurrentTime();
-			daylength = Math.floor(utcsunset - utcsunrise); //retuns the daylength in seconds 
+			var daylightSec = Math.floor(sunset - sunrise); //retuns the daylength in seconds 
+			console.log("total daylight for current day: " + daylightSec + " seconds");
 
-			//now is a TERRIBLE name for this variable = figure out something better
+			//calculate the degree
 			var elapsed = parseInt(currentTime) - parseInt(sunrise);
-			// console.log(now);
-
-			currentdegree = (360*elapsed)/daylength; //in minutes, 1440 minutes in 24 hours
-
+			currentdegree = (360*elapsed)/daylightSec; //in minutes, 1440 minutes in 24 hours
 			if (currentdegree > 360 || currentdegree < 0) {
 				currentdegree = 0;
 			}	
@@ -161,32 +148,7 @@
 
 			rotate(hand, currentdegree);
 
-			console.log('current degree: ' + currentdegree);
-
 		}, 1000);
-
-
-
-		/*
-		////////////// OUTLINE FOR GETTING YEAR OF DATA /////////////////
-		function getData(_day, _lat, _lon){
-			//get date - not today, just one i want
-			//then do SunCalc.getTimes
-			//push to array
-		}
-
-		function getFullYearData() {
-			// get sunrise and sunset times for a full year
-			// loop through this function 365 times -->  getData(_day, _lat, _lon);
-
-			// add each day to an object that will be exported by the export csv function
-		}
-
-		function exportMyCSV() {
-
-		}
-		/////////////////////////////////////////////////////////////////
-		*/
 
 
 		</script>
