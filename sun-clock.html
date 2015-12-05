@@ -4,11 +4,11 @@
 <head>
 	<meta charset="UTF-8">
 
-	<!-- // <script type="text/javascript" src="jquery-1.11.3.min.js"></script> -->
+	<script type="text/javascript" src="jquery-1.11.3.min.js"></script>
 	<script type="text/javascript" src="suncalc.js"></script>
 
 	<link href="style.css" rel="stylesheet">
-	<!-- <link href='http://fonts.googleapis.com/css?family=Yantramanav:100' rel='stylesheet' type='text/css'> -->
+	<link href='http://fonts.googleapis.com/css?family=Yantramanav:100' rel='stylesheet' type='text/css'>
 
 	<title>SunClock 2.0</title>
 
@@ -16,31 +16,24 @@
 
 <body>
 
-<!-- 		<div id="container">
-	        <form>
-	        	<input type="text" id="degree" name="degree">
-	            <input type="button" value="submit" submit="changeDegree(document.getElementById('degree').value);">
-	        </form>
+		<div id="container">
 
 	        <a id="button" href="#">Show Details</a>
-	        <div id="item">
-	        	<br>
-	        	This is a daylight clock.
-	        	<br>
-	        	It rotates 360 degrees over the course of daylight hours.
-	        	<br>
+
+	        <div id="info">
+	        	This daylight clock rotates 360 degrees over the course of daylight hours.
 	        	<br>
 
 	        	<div id="time"></div>
-	        	<br>
+	        	<!-- <div id="riseset"></div> -->
 	        	<div id="daylength"></div>
-	        	<br>
 	        	<div id="degree"></div>
 	        </div>
+
 	    </div> 
 
 	    <br>
-	    <br> -->
+	    <br>
 
 	    <div id="clock-div">
 
@@ -58,6 +51,12 @@
 
 
 	    <script type="text/javascript">
+
+	    //toggle information
+		$( "#info" ).hide();
+		$( "#button" ).click(function() {
+			$( "#info" ).toggle();
+		});
 
 	    var sunrise, sunset, utcsunrise, utcsunset;
 	    var currentTime, currentdegree, daylength;
@@ -147,6 +146,13 @@
 			}
 
 			rotate(hand, currentdegree);
+
+			//print the stuff to the screen
+			document.getElementById('time').innerHTML = date;
+			document.getElementById('riseset').innerHTML = "sunrise: " + sunrise +", sunset: " + sunset;
+		    document.getElementById('daylength').innerHTML = "hours of daylight: " +(daylightSec/3600).toFixed(2);
+		    document.getElementById('degree').innerHTML = "current degree: " + currentdegree.toFixed(1);
+		    
 
 		}, 1000);
 
