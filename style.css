@@ -2,11 +2,6 @@ body {
    font-family: 'Yantramanav', sans-serif;
 }
 
-#container{
-   position:fixed;
-   z-index:50;
-}
-
 #hand { 
    stroke: #FFFFFF; 
 }
@@ -20,8 +15,64 @@ body {
    opacity: 20%;
 }
 
+#toggle-btn{
+   position:fixed;
+   bottom: 10px;
+   z-index:50;
+}
+
 #info {
    position:fixed;
-   bottom:10px;
    margin-right:0px;
+   bottom: 70px;
+   z-index: 50;
+   color: #000;
+   font-size: 15px;
+   font-weight: 900;
+   letter-spacing: .07em;
+   line-height: 1.5em;
+}
+
+button {
+   width: 150px;
+   margin-top: 40px;
+   -webkit-border-radius: 0;
+   -moz-border-radius: 0;
+   border-radius: 0px;
+   /*font-family: Arial;*/
+   color: #000;
+   font-size: 15px;
+   letter-spacing: .07em;
+   background: #fff;
+   padding: 10px 20px 10px 20px;
+   border: solid #000 2px;
+   text-decoration: none;
+   outline:none;
+   transition: all 0.2s ease 0s;
+}
+
+/*button {
+   width: 180px;
+   margin-top: 40px;
+   -webkit-border-radius: 0;
+   -moz-border-radius: 0;
+   border-radius: 0px;
+   font-family: Arial;
+   color: #ffffff;
+   font-size: 20px;
+   letter-spacing: .07em;
+   background: #5596e6;
+   padding: 10px 20px 10px 20px;
+   border: solid #ffffff 2px;
+   text-decoration: none;
+   outline:none;
+   transition: all 0.2s ease 0s;
+}*/
+
+.btn:hover {
+   transition: all 0.2s ease 0s;
+   background: #000;
+   color: #fff;
+   text-decoration: none;
+   border: solid #000 2px;
 }

@@ -5,6 +5,7 @@
 	<meta charset="UTF-8">
 
 	<script type="text/javascript" src="jquery-1.11.3.min.js"></script>
+	<!-- // <script type ="text/javascript" src="clock.js"></script> -->
 	<script type="text/javascript" src="suncalc.js"></script>
 
 	<link href="style.css" rel="stylesheet">
@@ -15,92 +16,77 @@
 </head>
 
 <body>
+	<div id="clock-div">
 
-		<div id="container">
+    	<svg id="clock" viewBox="0 0 100 100">
+    		<circle id="face" cx="50" cy="50" r="46"/>
+    		<g id="hands">
+    			<line id="hand" x1="50" y1="50" x2="50" y2="4"/>
+    		</g>
+    	</svg>
 
-	        <a id="button" href="#">Show Details</a>
+    </div>
 
-	        <div id="info">
-	        	This daylight clock rotates 360 degrees over the course of daylight hours.
-	        	<br>
+	<div id="toggle-btn">
+		<button id="button" href="#" class='btn' data-default-text="Show Details" data-new-text="Hide Details">Show Details</button>
+	</div> 	
 
-	        	<div id="time"></div>
-	        	<!-- <div id="riseset"></div> -->
-	        	<div id="daylength"></div>
-	        	<div id="degree"></div>
-	        </div>
+    <div id="info">
+    	<!-- This daylight clock rotates 360 degrees over the course of daylight hours.
+    	<br> -->
 
-	    </div> 
+    	<div id="time"></div>
+    	<!-- <div id="riseset"></div> -->
+    	<div id="daylength"></div>
+    	<div id="degree"></div>
+    </div>
 
-	    <br>
-	    <br>
+    
 
-	    <div id="clock-div">
+    <script type="text/javascript">
+		var sunrise, sunset, utcsunrise, utcsunset;
+		var currentTime, currentdegree, daylength;
+		var date;
 
-	    	<svg id="clock" viewBox="0 0 100 100">
-	    		<circle id="face" cx="50" cy="50" r="46"/>
-	    		<g id="hands">
-	    			<line id="hand" x1="50" y1="50" x2="50" y2="4"/>
-	    		</g>
-	    	</svg>
-
-	    </div>
-
-	    <div id="info">
-	    </div>
-
-
-	    <script type="text/javascript">
-
-	    //toggle information
-		$( "#info" ).hide();
-		$( "#button" ).click(function() {
-			$( "#info" ).toggle();
+		// get user location from the browser
+		navigator.geolocation.getCurrentPosition(function(position) {
+			getLocation(position)
+		}, function(positionError) {
+			console.error(positionError);
 		});
 
-	    var sunrise, sunset, utcsunrise, utcsunset;
-	    var currentTime, currentdegree, daylength;
+		function getLocation(data) {
+			var lat = data.coords.latitude;
+			var lon = data.coords.longitude;
+			console.log("lat = " + lat + ", lon = " + lon);
 
-	    var myArray = [];
-	    // get user location from the browser
-	    navigator.geolocation.getCurrentPosition(function(position) {
-	    	getLocation(position)
-	    }, function(positionError) {
-	    	console.error(positionError);
-	    });
+			getTodayData(lat, lon);
+		}
 
-	    function getLocation(data) {
-	    	var lat = data.coords.latitude;
-	    	var lon = data.coords.longitude;
-	    	console.log("lat = " + lat + ", lon = " + lon);
+		function parseTimes(json) {
+			utcsunrise = json.sunrise.getTime()/1000;
+			utcsunset = json.sunset.getTime()/1000;
+			console.log("utc sunrise " + utcsunrise + ", utc sunset " + utcsunset);
 
-	    	getTodayData(lat, lon);
-	    }
+			sunrise = convertUNIX(utcsunrise);
+			sunset = convertUNIX(utcsunset);
+			console.log("sunrise is at " + sunrise + " seconds, sunset is at " + sunset + " seconds");
+		}
 
-	    function parseTimes(json) {
-	    	utcsunrise = json.sunrise.getTime()/1000;
-	    	utcsunset = json.sunset.getTime()/1000;
-	    	console.log("utc sunrise " + utcsunrise + ", utc sunset " + utcsunset);
+		function getTodayData(_lat, _lon){
+			var times = SunCalc.getTimes(new Date(), _lat, _lon);
 
-	    	sunrise = convertUNIX(utcsunrise);
-	    	sunset = convertUNIX(utcsunset);
-	    	console.log("sunrise is at " + sunrise + " seconds, sunset is at " + sunset + " seconds");
-	    }
-
-	    function getTodayData(_lat, _lon){
-	    	var times = SunCalc.getTimes(new Date(), _lat, _lon);
-
-	    	parseTimes(times);
-	    }
+			parseTimes(times);
+		}
 
 		/*
 		the function convertUNIX takes a UTC timestamp and finds the seconds in THAT particular day
 		there are 86400 seconds in a day - so the sunrise should be sometime around 2000-3000 seconds, and sunset should be 5000++
 		*/
 		var convertUNIX = function(UTC) {
-			var date = new Date(UTC*1000);         
-			var hours = date.getHours() * 60; 
-			var minutes = "0" + date.getMinutes();
+			var d = new Date(UTC*1000);         
+			var hours = d.getHours() * 60; 
+			var minutes = "0" + d.getMinutes();
 			var totalMinutes = parseInt(hours) + parseInt(minutes);
 			var totalSeconds = parseInt(totalMinutes) * 60;
 
@@ -110,10 +96,15 @@
 		function getCurrentTime() {
 			//this is getting the number of seconds that have elapsed since the beginning of TODAY - it resets to zero at midnight
 			date = new Date();
-			hours = date.getHours() * 60; 
-			minutes = "0" + date.getMinutes();
-			seconds = date.getSeconds();
-			totalMinutes = parseInt(hours) + parseInt(minutes);
+			var hours = date.getHours() * 60; 
+			var minutes = "0" + date.getMinutes();
+			var seconds = date.getSeconds();
+			var totalMinutes = parseInt(hours) + parseInt(minutes);
+			// today = JSON.substring(new Date());
+
+			// today = JSON.stringify(d);
+			// today = today.substring(1);
+
 
 			var totalSeconds = (parseInt(totalMinutes) * 60) + parseInt(seconds);
 			return totalSeconds;
@@ -147,9 +138,12 @@
 
 			rotate(hand, currentdegree);
 
+			function cut(str, cutStart, cutEnd){
+				return str.substr(0,cutStart) + str.substr(cutEnd+1);
+			}
+
 			//print the stuff to the screen
 			document.getElementById('time').innerHTML = date;
-			document.getElementById('riseset').innerHTML = "sunrise: " + sunrise +", sunset: " + sunset;
 		    document.getElementById('daylength').innerHTML = "hours of daylight: " +(daylightSec/3600).toFixed(2);
 		    document.getElementById('degree').innerHTML = "current degree: " + currentdegree.toFixed(1);
 		    
@@ -157,8 +151,25 @@
 		}, 1000);
 
 
-		</script>
+		//////////////////////////////////////////
 
-	</body>
 
-	</html>
+		// toggle button text on click
+		$(".btn").click(function () {
+		    var $element = $(this);
+		    $element.text(function(i, text) {
+		        return text == $element.data('default-text') ? $element.data('new-text')
+		                                                     : $element.data('default-text');
+		    });
+		});
+
+		// toggle hide/show of details 
+		$( "#info" ).hide();
+		$( "#button" ).click(function() {
+			// $(this).text("Hide Details");
+			$( "#info" ).toggle();
+		});
+    </script>
+</body>
+
+</html>
